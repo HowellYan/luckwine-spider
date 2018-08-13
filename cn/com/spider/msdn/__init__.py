@@ -6,11 +6,9 @@ import re
 import json
 import requests
 import sqlite3
+import os
 
 #'''抓取网页文件内容，保存到内存@url 欲抓取文件 ，path+filename'''
-
-
-
 def get_html(url):
     try:
         cj = cookielib.LWPCookieJar()
@@ -41,7 +39,7 @@ def get_id(url):
     res_tr = r'data-menuid="(.*?)"'
     down_link = re.findall(res_tr, str(data), re.S | re.M)
     for id in down_link:
-        print id
+        #print id
         post_index(id)
 
 
@@ -51,26 +49,26 @@ def post_index(id):
         "id": id
     }
     response = post_http(url, formdata)
-    print response
+    #print response
     for json in eval(response):
-        print json['id']
-        post_getLang(json['id'])
+        #print json['id'], json['name']
+        post_getLang(json['id'], id, json['name'])
 
 
-def post_getLang(id):
+def post_getLang(id, pid, pname):
     url = 'https://msdn.itellyou.cn/Category/GetLang'
     formdata = {
         "id": id
     }
     response = post_http(url, formdata)
     result = json.loads(response)['result']
-    print response
+    #print response
     for js in result:
-        print js['id']
-        post_getList(js['id'], id)
+        #print js['id']
+        post_getList(js['id'], id, pid, pname)
 
 
-def post_getList(lang, id):
+def post_getList(lang, id, pid, pname):
     url = 'https://msdn.itellyou.cn/Category/GetList'
     formdata = {
         "id": id,
@@ -78,7 +76,23 @@ def post_getList(lang, id):
         "filter": bool(1)
     }
     response = post_http(url, formdata)
-    print response
+    result = json.loads(response)['result']
+    for js in result:
+        save_db(str(js['id']), lang, id, str(js['name']), str(js['url']), str(js['post']), pname, pid)
+        print result
+
+    #save_db(id, lang, gid, name, url, post, pname, pid)
+
+def save_db(id, lang, gid, name, url, post, pname, pid):
+    print os.getcwd()  # 获得当前工作目录
+    conn = sqlite3.connect('../../../../spider.db')
+    c = conn.cursor()
+    # Insert a row of data
+    c.execute("INSERT INTO main.msdn(id, lang, gid, name, url, post, pname, pid) VALUES ('"+id+"','"+lang+"','"+gid+"','"+name+"','"+url+"','"+post+"','"+pname+"','"+pid+"')")
+    # Save (commit) the changesprint os.getcwd()
+    conn.commit()
+    conn.close()
+
 
 def post_http(url, formdata):
     # POST请求的目标URL
@@ -97,7 +111,7 @@ def post_http(url, formdata):
         'X-Requested-With': 'XMLHttpRequest'
     }
     data = urllib.urlencode(formdata)
-    request = urllib2.Request(url, data=data, headers=headers)
+    #request = urllib2.Request(url, data=data, headers=headers)
     #response = urllib2.urlopen(request)
     #return response.read()
     response = requests.post(url, data=data, headers=headers, timeout=120)
