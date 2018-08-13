@@ -1,4 +1,5 @@
 # # encoding:utf-8
+import string
 import urllib
 import urllib2
 import cookielib
@@ -6,7 +7,9 @@ import re
 import json
 import requests
 import sqlite3
-import os
+import sys                         #也就是在该文件代码开头添加这三行内容
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 #'''抓取网页文件内容，保存到内存@url 欲抓取文件 ，path+filename'''
 def get_html(url):
@@ -78,13 +81,13 @@ def post_getList(lang, id, pid, pname):
     response = post_http(url, formdata)
     result = json.loads(response)['result']
     for js in result:
-        save_db(str(js['id']), lang, id, str(js['name']), str(js['url']), str(js['post']), pname, pid)
-        print result
+        print json.dumps(js['id']), lang, id, json.dumps(js['name']), json.dumps(js['url']), json.dumps(js['post']), pname, pid
+        save_db(json.dumps(js['id']), lang, id, json.dumps(js['name']), json.dumps(js['url']), json.dumps(js['post']), pname, pid)
 
     #save_db(id, lang, gid, name, url, post, pname, pid)
 
 def save_db(id, lang, gid, name, url, post, pname, pid):
-    print os.getcwd()  # 获得当前工作目录
+    # print os.getcwd()  # 获得当前工作目录
     conn = sqlite3.connect('../../../../spider.db')
     c = conn.cursor()
     # Insert a row of data
