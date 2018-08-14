@@ -20,6 +20,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
+session = requests.session()
 
 def post_http(url, formdata):
     # POST请求的目标URL
@@ -40,11 +41,7 @@ def post_http(url, formdata):
     }
     data = urllib.urlencode(formdata)
     print data
-    #request = urllib2.Request(url, data=data, headers=headers)
-    #response = urllib2.urlopen(request)
-    #return response.read()
-    response = requests.post(url, data=data, headers=headers, timeout=120)
-    #session = requests.sessions()
+    response = session.post(url, data=data, headers=headers, timeout=120)
     print response.text
     return response.text
 
@@ -58,6 +55,7 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
+
 def save_file(path, file_name, data):
     if data == None:
         return
@@ -68,6 +66,7 @@ def save_file(path, file_name, data):
     file.write(data)
     file.flush()
     file.close()
+
 
 # '''抓取网页文件内容，保存到内存@url 欲抓取文件 ，path+filename'''
 def get_file(url):
@@ -93,17 +92,17 @@ def get_file(url):
         return None
 
 def login():
-    url='https://accounts.douban.com/login'
+    url='https://www.douban.com/accounts/login'
     formdata = {
         "source": "None",
         "form_email": "15817161961",
         "redir":"https://www.douban.com",
         "form_password": "1227241900zx",
-        "captcha-solution": "store", # 验证码
-        "captcha-id": "ulK875xnsOpIhEzDeBvZ1E7u:en", # 验证码图片id
+        "captcha-solution": "brother", # 验证码
+        "captcha-id": "LaWfXy8orhmAw5XhjVtF2hQs:en", # 验证码图片id
         "remember": "on"
     }
-    response = post_http(url, formdata)
+    return post_http(url, formdata)
     res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"/>'
     img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
     print img_link
@@ -113,10 +112,20 @@ def login():
     #res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"'
     #img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
     #print img_link
-    save_file("../../../../img", "captcha.jpg", get_file(img_link))
+    #save_file("../../../../img", "captcha.jpg", get_file(img_link))
     #print tesserocr.file_to_text("/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg")
     #print Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
-    print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
+    #print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
+
+
+def index():
+    url = 'https://www.douban.com/accounts/'
+    print session
+    response = session.get(url)
+    print response.text
+
+
 
 if __name__ == '__main__':
     login()
+    index()
