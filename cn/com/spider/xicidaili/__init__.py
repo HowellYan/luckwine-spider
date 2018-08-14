@@ -1,10 +1,13 @@
 # encoding:utf-8
+import sqlite3
+
 import requests
 from bs4 import BeautifulSoup
 
 import sys                         #也就是在该文件代码开头添加这三行内容
 reload(sys)
 sys.setdefaultencoding('utf8')
+
 # 请求url，获取网页数据
 def _requestUrl(index):
     src_url = 'http://www.xicidaili.com/nt/'
@@ -39,6 +42,7 @@ def filterValidProxyIp(list):
         if validateIp(ip):
             print('%s 可用' % ip)
             validList.append(ip)
+            save_db(ip)
         else:
             print('%s 无效' % ip)
     return validList
@@ -53,12 +57,23 @@ def validateIp(proxy):
     except Exception as e:
         return False
 
+
+def save_db(ip):
+    # print os.getcwd()  # 获得当前工作目录
+    conn = sqlite3.connect('../../../../spider.db')
+    c = conn.cursor()
+    # Insert a row of data
+    c.execute("INSERT INTO main.xicidaili(ip) VALUES ('"+ip+"')")
+    # Save (commit) the changesprint os.getcwd()
+    conn.commit()
+    conn.close()
+
 # 获取可用的代理ip列表
 def getProxyIp():
     allProxys = []
 
-    startPage = 0
-    endPage = 1
+    startPage = 1
+    endPage = 30
 
     for index in range(startPage, endPage):
         print('查找第 %s 页的ip信息' % index)
