@@ -102,7 +102,7 @@ def login():
         "captcha-id": "LaWfXy8orhmAw5XhjVtF2hQs:en", # 验证码图片id
         "remember": "on"
     }
-    return post_http(url, formdata)
+    response = post_http(url, formdata)
     res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"/>'
     img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
     print img_link
@@ -112,10 +112,10 @@ def login():
     #res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"'
     #img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
     #print img_link
-    #save_file("../../../../img", "captcha.jpg", get_file(img_link))
-    #print tesserocr.file_to_text("/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg")
-    #print Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
-    #print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
+    save_file("../../../../img", "captcha.jpg", get_file(img_link))
+    print tesserocr.file_to_text("/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg")
+    print Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
+    print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
 
 
 def index():
@@ -126,6 +126,12 @@ def index():
 
 
 
+def showImgToStr():
+    Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
+    print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
+    print ''
+
 if __name__ == '__main__':
-    login()
-    index()
+    #login()
+    #index()
+    showImgToStr()
