@@ -5,9 +5,17 @@ import urllib2
 import cookielib
 import re
 import json
+from time import sleep
+
 import requests
 import sqlite3
 import sys                         #也就是在该文件代码开头添加这三行内容
+import tesserocr
+import os
+# import textract
+from PIL import Image
+import pytesseract
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -36,9 +44,52 @@ def post_http(url, formdata):
     #return response.read()
     response = requests.post(url, data=data, headers=headers, timeout=120)
     #session = requests.sessions()
-
     print response.text
     return response.text
+
+#創建文件目录，并返回该目录
+def mkdir(path):
+    # 去除左右两边的空格
+    path = path.strip()
+    # 去除尾部 \符号
+    path = path.rstrip("\\")
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+def save_file(path, file_name, data):
+    if data == None:
+        return
+    mkdir(path)
+    if (not path.endswith("/")):
+        path = path + "/"
+    file = open(path + file_name, "wb")
+    file.write(data)
+    file.flush()
+    file.close()
+
+# '''抓取网页文件内容，保存到内存@url 欲抓取文件 ，path+filename'''
+def get_file(url):
+    try:
+        cj = cookielib.LWPCookieJar()
+        hdr = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+            'Accept-Encoding': 'none',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Connection': 'keep-alive'}
+
+        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+        urllib2.install_opener(opener)
+
+        req = urllib2.Request(url, headers=hdr)
+        operate = opener.open(req)
+        data = operate.read()
+        return data
+    except BaseException, e:
+        print e
+        return None
 
 def login():
     url='https://accounts.douban.com/login'
@@ -51,7 +102,20 @@ def login():
         "captcha-id": "ulK875xnsOpIhEzDeBvZ1E7u:en", # 验证码图片id
         "remember": "on"
     }
-    post_http(url, formdata)
+    # response = post_http(url, formdata)
+    # res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"/>'
+    # img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
+    # print img_link
+
+    response = get_file('https://www.douban.com')
+    #print response
+    res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"'
+    img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
+    print img_link
+    save_file("../../../../img", "captcha.jpg", get_file(img_link))
+    #print tesserocr.file_to_text("/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg")
+    #print Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
+    print pytesseract.image_to_string(Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg'))
 
 if __name__ == '__main__':
     login()
