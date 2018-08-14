@@ -9,15 +9,16 @@ from time import sleep
 
 import requests
 import sqlite3
-import sys                         #也就是在该文件代码开头添加这三行内容
+
 import tesserocr
 import os
 # import textract
 from PIL import Image
 import pytesseract
-
+import sys                         #也就是在该文件代码开头添加这三行内容
 reload(sys)
 sys.setdefaultencoding('utf8')
+
 
 
 def post_http(url, formdata):
@@ -102,16 +103,16 @@ def login():
         "captcha-id": "ulK875xnsOpIhEzDeBvZ1E7u:en", # 验证码图片id
         "remember": "on"
     }
-    # response = post_http(url, formdata)
-    # res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"/>'
-    # img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
-    # print img_link
-
-    response = get_file('https://www.douban.com')
-    #print response
-    res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"'
+    response = post_http(url, formdata)
+    res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"/>'
     img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
     print img_link
+
+    #response = get_file('https://www.douban.com')
+    #print response
+    #res_tr = r'<img id="captcha_image" src="(.*?)" alt="captcha" class="captcha_image"'
+    #img_link = re.findall(res_tr, str(response), re.S | re.M)[0]
+    #print img_link
     save_file("../../../../img", "captcha.jpg", get_file(img_link))
     #print tesserocr.file_to_text("/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg")
     #print Image.open('/home/howell/PycharmProjects/luckwine-spider/img/captcha.jpg')
