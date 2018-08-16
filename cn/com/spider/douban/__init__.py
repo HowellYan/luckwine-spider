@@ -97,7 +97,7 @@ def login():
         "source": "None",
         "form_email": "15817161961",
         "redir":"https://www.douban.com",
-        "form_password": "1227241900zx",
+        "form_password": "***",
         "captcha-solution": "brother", # 验证码
         "captcha-id": "LaWfXy8orhmAw5XhjVtF2hQs:en", # 验证码图片id
         "remember": "on"
